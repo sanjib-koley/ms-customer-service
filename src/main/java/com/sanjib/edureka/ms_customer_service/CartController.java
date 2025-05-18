@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,10 +27,10 @@ public class CartController {
 	@Autowired
     TokenService tokenService;
 
-	@PostMapping("/cart/add/{productId}/{quantity}")
-	public ResponseEntity<?> addProductToCart(@PathVariable("productId") Integer productId,
-			@PathVariable("quantity") Integer quantity,
+	@PostMapping("/cart/add")
+	public ResponseEntity<?> addProductToCart(
 			@RequestHeader("Authorization") String token, @RequestHeader("Usertype") String usertype,
+			@RequestBody Item itemView,
 			HttpServletResponse httpServletResponse,
             HttpServletRequest httpServletRequest) {
 		
@@ -53,8 +54,8 @@ public class CartController {
 			if(!isCartPresent) {
 				
 				Item item = new Item();
-				item.setProductId(productId);
-				item.setQuantity(quantity);
+				item.setProductId(itemView.getProductId());
+				item.setQuantity(itemView.getQuantity());
 				
 				Cart cart = new Cart();
 				item.setCart(cart);
@@ -76,8 +77,8 @@ public class CartController {
 				Integer cartId = Integer.valueOf(cookieCart.getValue().split("_")[1]);
 				
 				Item item = new Item();
-				item.setProductId(productId);
-				item.setQuantity(quantity);
+				item.setProductId(itemView.getProductId());
+				item.setQuantity(itemView.getQuantity());
 				
 				Cart cartUpdated = cartService.findCartByCartId(cartId);
 				item.setCart(cartUpdated);

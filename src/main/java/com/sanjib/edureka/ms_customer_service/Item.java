@@ -44,7 +44,7 @@ public class Item {
 	@Column(name = "quantity", nullable = false)
 	private Integer quantity=0;
 	
-	@NotNull
+	
 	@DecimalMin(value = "0.00")
 	@Column(name = "price", nullable=false)
 	private Double price;
