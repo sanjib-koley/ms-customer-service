@@ -1,12 +1,17 @@
 package com.sanjib.edureka.ms_customer_service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -34,17 +39,9 @@ public class Cart {
 	private Long customerId;
 	
 	
-	@Column(name = "product_id", nullable=false)
-	private Integer productId;
+	@OneToMany(cascade = CascadeType.ALL,mappedBy = "cart")
+	private List<Item> items = new ArrayList<>();
 	
-
-	@Column(name = "product_name", nullable=false,length=100)
-	private String productName;
-	
-	@NotNull
-	@Min(value = 0)
-	@Column(name = "quantity", nullable = false)
-	private Integer quantity=0;
 	
 	@NotNull
 	@DecimalMin(value = "0.00")
