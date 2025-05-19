@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -91,6 +92,67 @@ public class CartController {
 			return ResponseEntity.status(401).body("Invalid Details");
 		}
 	
+
+	}
+	
+	@PutMapping("/cart/add/addressandpayment")
+	public ResponseEntity<?> addPaymentToCart(@RequestHeader("Authorization") String token,
+			@RequestHeader("Usertype") String usertype, @RequestBody Cart cartView,
+			HttpServletResponse httpServletResponse, HttpServletRequest httpServletRequest) {
+
+		boolean isCartPresent = false;
+		List<Cookie> cookieList = null;
+
+		Cookie[] cookies = httpServletRequest.getCookies();
+		if (cookies == null) {
+			cookieList = new ArrayList<>();
+		} else {
+			cookieList = List.of(cookies);
+		}
+
+		if (cookieList.stream().filter(cookie -> cookie.getName().equalsIgnoreCase("customerId_cartId")).count() > 0) {
+			isCartPresent = true;
+		}
+		if (tokenService.validateToken(token) && "customer".equalsIgnoreCase(usertype) && isCartPresent) {
+
+			Cookie cookieCart = cookieList.stream()
+					.filter(cookie -> cookie.getName().equalsIgnoreCase("customerId_cartId")).findFirst().get();
+			Integer cartId = Integer.valueOf(cookieCart.getValue().split("_")[1]);
+			Cart cartUpdated = cartService.findCartByCartId(cartId);
+			cartService.updatePaymentAndAddressToCart(cartUpdated, cartView.getPaymentInfo(), cartView.getAddress());
+			return new ResponseEntity<Cart>(cartUpdated, HttpStatus.OK);
+
+		} else {
+			return ResponseEntity.status(401).body("Invalid Details");
+		}
+
+	}
+	
+	@PostMapping("/cart/checkout")
+	public ResponseEntity<?> checkoutCart(@RequestHeader("Authorization") String token,
+			@RequestHeader("Usertype") String usertype, HttpServletResponse httpServletResponse,
+			HttpServletRequest httpServletRequest) {
+
+		boolean isCartPresent = false;
+		List<Cookie> cookieList = null;
+
+		Cookie[] cookies = httpServletRequest.getCookies();
+		if (cookies == null) {
+			cookieList = new ArrayList<>();
+		} else {
+			cookieList = List.of(cookies);
+		}
+
+		if (cookieList.stream().filter(cookie -> cookie.getName().equalsIgnoreCase("customerId_cartId")).count() > 0) {
+			isCartPresent = true;
+		}
+		if (tokenService.validateToken(token) && "customer".equalsIgnoreCase(usertype) && isCartPresent) {
+
+			return ResponseEntity.status(200).body("Checkout initiated");
+
+		} else {
+			return ResponseEntity.status(401).body("Invalid Details");
+		}
 
 	}
 }

@@ -7,4 +7,6 @@ public interface CartService {
 	public Cart findCartByCartId(Integer cartId);
 	
 	public Cart updateProductToCart(String token, String usertype, Cart cart,Item item);
+	
+	public Cart updatePaymentAndAddressToCart(Cart cart,String paymentInfo,String address);
 }

@@ -9,10 +9,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -43,7 +41,6 @@ public class Cart {
 	private List<Item> items = new ArrayList<>();
 	
 	
-	@NotNull
 	@DecimalMin(value = "0.00")
 	@Column(name = "cart_value", nullable=false)
 	private Double cartValue=0.0;

@@ -53,4 +53,12 @@ public class CartServiceImpl implements CartService {
 		}
 		return cart;
 	}
+
+	@Override
+	public Cart updatePaymentAndAddressToCart(Cart cart, String paymentInfo,String address) {
+		cart.setPaymentInfo(paymentInfo);
+		cart.setAddress(address);
+		cartReository.save(cart);
+		return cart;
+	}
 }
