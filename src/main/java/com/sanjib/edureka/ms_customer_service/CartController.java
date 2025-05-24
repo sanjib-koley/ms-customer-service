@@ -147,6 +147,14 @@ public class CartController {
 			isCartPresent = true;
 		}
 		if (tokenService.validateToken(token) && "customer".equalsIgnoreCase(usertype) && isCartPresent) {
+			
+			Cookie cookieCart = cookieList.stream()
+					.filter(cookie -> cookie.getName().equalsIgnoreCase("customerId_cartId")).findFirst().get();
+			Integer cartId = Integer.valueOf(cookieCart.getValue().split("_")[1]);
+			Cart cartRetrieved = cartService.findCartByCartId(cartId);
+			
+			
+			
 
 			return ResponseEntity.status(200).body("Checkout initiated");
 
