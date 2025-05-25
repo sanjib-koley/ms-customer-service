@@ -165,9 +165,9 @@ public class CartController {
 			paymentView.setBalance(orderCreated.getOrderValue());
 			
 			tokenService.debitPayment(token, usertype, orderCreated.getOrderId(), paymentView);
-			kafkaTemplate.send("order_complete", orderCreated.getOrderId());
+			kafkaTemplate.send("order_complete", orderCreated.getId());
 			
-			return ResponseEntity.status(200).body("Checkout initiated");
+			return ResponseEntity.status(200).body("Checkout initiated:::"+orderCreated.getId());
 
 		} else {
 			return ResponseEntity.status(401).body("Invalid Details");
