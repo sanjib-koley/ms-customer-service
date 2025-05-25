@@ -7,6 +7,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import other_service_bean.Order;
+import other_service_bean.Payment;
+
 @Service
 public class TokenService
 {
@@ -112,6 +115,37 @@ public class TokenService
         	throw new RuntimeException("Product cannot be fetched from Id:::"+productId);
         }
         return  product;
+    }
+    
+    
+    public Order createOrder(String token,String usertype,Long customerId,Integer cartId, Cart cart)
+    {
+    	 
+        WebClient webClient = ctx.getBean("orderDomainCreateOrderWebClientEureka", WebClient.class);
+
+        Order orderCreated = webClient.post()
+        	.uri("/{customerId}/{cartId}", customerId,cartId)
+        		.bodyValue(cart)
+                .header("Authorization", token)
+                .header("Usertype", usertype).retrieve()
+                .bodyToMono(Order.class)
+                .block(); // Thread is Blocked until the response is received
+        return orderCreated;
+    }
+    
+    public String debitPayment(String token,String usertype,String orderId,Payment paymentView)
+    {
+    	 
+        WebClient webClient = ctx.getBean("paymentServiceDebitPaymentWebClientEureka", WebClient.class);
+
+        String paymentStatus = webClient.post()
+        	.uri("/{orderId}", orderId)
+        		.bodyValue(paymentView)
+                .header("Authorization", token)
+                .header("Usertype", usertype).retrieve()
+                .bodyToMono(String.class)
+                .block();
+        return paymentStatus;
     }
 
 

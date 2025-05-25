@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import other_service_bean.Order;
+import other_service_bean.Payment;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -27,6 +29,9 @@ public class CartController {
 	
 	@Autowired
     TokenService tokenService;
+	
+	@Autowired
+	KafkaTemplate<String, String> kafkaTemplate;
 
 	@PostMapping("/cart/add")
 	public ResponseEntity<?> addProductToCart(
@@ -151,11 +156,17 @@ public class CartController {
 			Cookie cookieCart = cookieList.stream()
 					.filter(cookie -> cookie.getName().equalsIgnoreCase("customerId_cartId")).findFirst().get();
 			Integer cartId = Integer.valueOf(cookieCart.getValue().split("_")[1]);
+			Long customerId = Long.valueOf(cookieCart.getValue().split("_")[0]);
 			Cart cartRetrieved = cartService.findCartByCartId(cartId);
 			
+			Order orderCreated = tokenService.createOrder(token, usertype, customerId, cartId, cartRetrieved);
+			Payment paymentView = new Payment();
+			paymentView.setCustomerId(customerId);
+			paymentView.setBalance(orderCreated.getOrderValue());
 			
+			tokenService.debitPayment(token, usertype, orderCreated.getOrderId(), paymentView);
+			kafkaTemplate.send("order_complete", orderCreated.getOrderId());
 			
-
 			return ResponseEntity.status(200).body("Checkout initiated");
 
 		} else {

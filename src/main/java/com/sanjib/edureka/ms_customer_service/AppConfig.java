@@ -131,5 +131,47 @@ public class AppConfig
                 .filter(new LoggingWebClientFilter())
                 .build();
     }
+    
+    @Bean
+    @Scope(value = "prototype")
+    WebClient orderDomainCreateOrderWebClientEureka(WebClient.Builder webClientBuilder)
+    {
+        List<ServiceInstance>  instances =   discoveryClient.getInstances("order-service");
+
+        if(instances.isEmpty())
+        {
+            throw new RuntimeException("No instances found for order-service");
+        }
+
+        // Assuming you want to use the first instance and can be replaced by a load balancing strategy
+        String hostname = instances.get(0).getHost();
+        String port = String.valueOf(instances.get(0).getPort());
+
+        return webClientBuilder
+                .baseUrl(String.format("http://%s:%s/api/v1/order/create", hostname, port))
+                .filter(new LoggingWebClientFilter())
+                .build();
+    }
+    
+    @Bean
+    @Scope(value = "prototype")
+    WebClient paymentServiceDebitPaymentWebClientEureka(WebClient.Builder webClientBuilder)
+    {
+        List<ServiceInstance>  instances =   discoveryClient.getInstances("payment-service");
+
+        if(instances.isEmpty())
+        {
+            throw new RuntimeException("No instances found for order-service");
+        }
+
+        // Assuming you want to use the first instance and can be replaced by a load balancing strategy
+        String hostname = instances.get(0).getHost();
+        String port = String.valueOf(instances.get(0).getPort());
+        
+        return webClientBuilder
+                .baseUrl(String.format("http://%s:%s/api/v1/payment/debit", hostname, port))
+                .filter(new LoggingWebClientFilter())
+                .build();
+    }
 
 }
