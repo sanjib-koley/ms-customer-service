@@ -24,7 +24,7 @@ public class CartServiceImpl implements CartService {
 			item.setPrice(product.getPrice());
 			
 			cart.getItems().add(item);
-			cart.setCartValue(cart.getCartValue()+item.getPrice());
+			cart.setCartValue(cart.getCartValue()+(item.getPrice()*item.getQuantity()));
 			
 			cartReository.save(cart);
 		}
@@ -47,7 +47,7 @@ public class CartServiceImpl implements CartService {
 			item.setPrice(product.getPrice());
 			
 			cart.getItems().add(item);
-			cart.setCartValue(cart.getCartValue()+item.getPrice());
+			cart.setCartValue(cart.getCartValue()+(item.getPrice()*item.getQuantity()));
 			
 			cartReository.save(cart);
 		}

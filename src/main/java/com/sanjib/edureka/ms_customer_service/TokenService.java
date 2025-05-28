@@ -147,6 +147,20 @@ public class TokenService
                 .block();
         return paymentStatus;
     }
+    
+    public String debitInventory(String token,String usertype,Integer productId,Integer quantity)
+    {
+    	 
+        WebClient webClient = ctx.getBean("inventoryServiceDebitInventoryWebClientEureka", WebClient.class);
+
+        String inventoryRes = webClient.post()
+        	.uri("/{productId}/{quantity}", productId,quantity)
+                .header("Authorization", token)
+                .header("Usertype", usertype).retrieve()
+                .bodyToMono(String.class)
+                .block();
+        return inventoryRes;
+    }
 
 
 

@@ -1,7 +1,6 @@
 package com.sanjib.edureka.ms_customer_service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -38,7 +37,7 @@ public class Cart {
 	
 	
 	@OneToMany(cascade = CascadeType.ALL,mappedBy = "cart")
-	private List<Item> items = new ArrayList<>();
+	private List<Item> items = new LinkedList<>();
 	
 	
 	@DecimalMin(value = "0.00")

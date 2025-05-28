@@ -1,6 +1,6 @@
 package com.sanjib.edureka.ms_customer_service;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +45,7 @@ public class CartController {
 
 		Cookie[] cookies = httpServletRequest.getCookies();
 		if (cookies == null) {
-			cookieList = new ArrayList<>();
+			cookieList = new LinkedList<>();
 		} else {
 			cookieList = List.of(cookies);
 		}
@@ -110,7 +110,7 @@ public class CartController {
 
 		Cookie[] cookies = httpServletRequest.getCookies();
 		if (cookies == null) {
-			cookieList = new ArrayList<>();
+			cookieList = new LinkedList<>();
 		} else {
 			cookieList = List.of(cookies);
 		}
@@ -143,7 +143,7 @@ public class CartController {
 
 		Cookie[] cookies = httpServletRequest.getCookies();
 		if (cookies == null) {
-			cookieList = new ArrayList<>();
+			cookieList = new LinkedList<>();
 		} else {
 			cookieList = List.of(cookies);
 		}
@@ -160,12 +160,17 @@ public class CartController {
 			Cart cartRetrieved = cartService.findCartByCartId(cartId);
 			
 			Order orderCreated = tokenService.createOrder(token, usertype, customerId, cartId, cartRetrieved);
+			kafkaTemplate.send("order_complete", orderCreated.getId());
+			
 			Payment paymentView = new Payment();
 			paymentView.setCustomerId(customerId);
 			paymentView.setBalance(orderCreated.getOrderValue());
+			tokenService.debitPayment(token, usertype, orderCreated.getId(), paymentView);
 			
-			tokenService.debitPayment(token, usertype, orderCreated.getOrderId(), paymentView);
-			kafkaTemplate.send("order_complete", orderCreated.getId());
+			orderCreated.getItems().stream().forEach(
+					item -> tokenService.debitInventory(token, usertype, item.getProductId(), item.getQuantity()));
+			
+			
 			
 			return ResponseEntity.status(200).body("Checkout initiated:::"+orderCreated.getId());
 
